@@ -1,4 +1,4 @@
-name: Personality_Classification
+name: eksperimen-mlflow
 
 conda_env: conda.yaml
 
