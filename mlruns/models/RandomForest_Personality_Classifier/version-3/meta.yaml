@@ -1,0 +1,15 @@
+creation_timestamp: 1765982832719
+current_stage: None
+deployment_job_state: null
+description: ''
+last_updated_timestamp: 1765982832719
+model_id: m-0c6697585a8843518ee1a93cd17a38d9
+name: RandomForest_Personality_Classifier
+run_id: 9f9c2b5e4dbf410bb1a62dd1d66ca224
+run_link: ''
+source: models:/m-0c6697585a8843518ee1a93cd17a38d9
+status: READY
+status_message: null
+storage_location: file:C:/Users/Adinata/Eksperimen_SML_I_Ketut_Adinata_Vyarsa/mlruns/210305318247172050/models/m-0c6697585a8843518ee1a93cd17a38d9/artifacts
+user_id: null
+version: 3

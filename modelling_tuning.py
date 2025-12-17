@@ -2,13 +2,15 @@
 # ============================================================
 # modelling_tuning.py
 # Training model dengan MLflow tracking + Hyperparameter Tuning
-# Target: SKILLED (3 pts)
+# Target: SKILLED (Lengkap dengan URI Localhost & Confusion Matrix)
 # ============================================================
 
 import os
 import pandas as pd
 import numpy as np
 import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
 import mlflow
 import mlflow.sklearn
 
@@ -20,7 +22,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
-    classification_report
+    confusion_matrix
 )
 
 # ============================================================
@@ -37,18 +39,22 @@ print("MLflow Model Training with Hyperparameter Tuning")
 print("="*60)
 
 # ============================================================
-# SET MLFLOW EXPERIMENT
+# [CRITICAL] SET MLFLOW TRACKING URI
 # ============================================================
-print("\n[1/7] Setting up MLflow experiment...")
+# Ini adalah bagian revisi utama agar tersimpan di Localhost Server
+print("\n[1/8] Setting up MLflow experiment...")
+mlflow.set_tracking_uri("http://127.0.0.1:5000/")
 mlflow.set_experiment(EXPERIMENT_NAME)
-print(f"✓ Experiment: {EXPERIMENT_NAME}")
+
+print(f"✓ Tracking URI : http://127.0.0.1:5000/")
+print(f"✓ Experiment   : {EXPERIMENT_NAME}")
 
 # ============================================================
 # LOAD DATASET
 # ============================================================
-print("\n[2/7] Loading dataset...")
+print("\n[2/8] Loading dataset...")
 if not os.path.exists(DATA_PATH):
-    raise FileNotFoundError(f"Dataset not found: {DATA_PATH}")
+    raise FileNotFoundError(f"Dataset not found: {DATA_PATH}. Pastikan sudah menjalankan Notebook preprocessing.")
 
 df = pd.read_csv(DATA_PATH)
 print(f"✓ Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
@@ -59,7 +65,7 @@ y = df["Personality"]
 # ============================================================
 # TRAIN-TEST SPLIT
 # ============================================================
-print("\n[3/7] Splitting data...")
+print("\n[3/8] Splitting data...")
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
@@ -69,7 +75,7 @@ print(f"✓ Test set: {X_test.shape[0]} samples")
 # ============================================================
 # SCALING
 # ============================================================
-print("\n[4/7] Scaling features...")
+print("\n[4/8] Scaling features...")
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
@@ -81,7 +87,7 @@ print(f"✓ Scaler saved: {scaler_path}")
 # ============================================================
 # HYPERPARAMETER TUNING
 # ============================================================
-print("\n[5/7] Starting hyperparameter tuning...")
+print("\n[5/8] Starting hyperparameter tuning...")
 print("This may take a few minutes...")
 
 param_grid = {
@@ -111,7 +117,7 @@ print(f"✓ Best CV score: {grid_search.best_score_:.4f}")
 # ============================================================
 # EVALUASI MODEL
 # ============================================================
-print("\n[6/7] Evaluating model...")
+print("\n[6/8] Evaluating model...")
 y_pred = best_model.predict(X_test_scaled)
 
 accuracy = accuracy_score(y_test, y_pred)
@@ -129,44 +135,64 @@ print(f"F1-Score  : {f1:.4f}")
 print("="*60)
 
 # ============================================================
-# MLFLOW MANUAL LOGGING (SKILLED)
+# GENERATE ARTIFACTS TAMBAHAN (Sesuai Gambar Skilled)
 # ============================================================
-print("\n[7/7] Logging to MLflow...")
+print("\n[7/8] Generating extra artifacts...")
 
-with mlflow.start_run(run_name="RandomForest_Tuned"):
+# 1. Confusion Matrix Plot
+cm = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.title('Confusion Matrix')
+plt.ylabel('Actual')
+plt.xlabel('Predicted')
+cm_path = "training_confusion_matrix.png"
+plt.savefig(cm_path)
+plt.close()
+print(f"✓ Confusion Matrix created: {cm_path}")
+
+# ============================================================
+# MLFLOW LOGGING
+# ============================================================
+# ============================================================
+# MLFLOW LOGGING (STRUKTUR RAPI)
+# ============================================================
+print("\n[8/8] Logging to MLflow...")
+
+with mlflow.start_run(run_name="RandomForest_Skilled_Run") as run:
     
-    # Log parameters
+    # 1. Log Parameters & Metrics (Tetap sama)
     mlflow.log_params(grid_search.best_params_)
-    mlflow.log_param("model_type", "RandomForestClassifier")
-    mlflow.log_param("cv_folds", 3)
-    mlflow.log_param("test_size", 0.2)
-    mlflow.log_param("random_state", 42)
-    
-    # Log metrics (sama dengan autolog)
     mlflow.log_metric("accuracy", accuracy)
-    mlflow.log_metric("precision_weighted", precision)
-    mlflow.log_metric("recall_weighted", recall)
     mlflow.log_metric("f1_score_weighted", f1)
-    mlflow.log_metric("best_cv_score", grid_search.best_score_)
     
-    # Log model
+    # 2. Log Model (Ini akan membuat folder 'model' di root artifacts)
+    # Di dalamnya otomatis ada MLmodel, conda.yaml, model.pkl, dll
     mlflow.sklearn.log_model(
-        best_model,
-        artifact_path="model",
+        sk_model=best_model,
+        artifact_path="model", 
         registered_model_name="RandomForest_Personality_Classifier"
     )
     
-    # Log scaler
-    mlflow.log_artifact(scaler_path, artifact_path="preprocessing")
+    # 3. Log file lainnya KE DALAM folder 'model' agar terlihat menyatu
+    # Kita arahkan artifact_path ke "model" juga
+    mlflow.log_artifact(scaler_path, artifact_path="model")
+    mlflow.log_artifact(cm_path, artifact_path="model") 
     
-    # Save model locally
+    print(f"✓ Semua artefak telah dikirim ke folder 'model' di MLflow")
+    
+    # Save model locally (opsional, backup)
     model_path = os.path.join(ARTIFACT_DIR, "best_model.pkl")
     joblib.dump(best_model, model_path)
     
-    print("✓ Model logged to MLflow")
-    print(f"✓ Model saved: {model_path}")
-    print(f"✓ Scaler saved: {scaler_path}")
+    print(f"✓ Model logged to MLflow Run ID: {run.info.run_id}")
+    print(f"✓ Artifacts sent to server: http://127.0.0.1:5000/")
+
+# Bersihkan file temporary gambar jika perlu
+if os.path.exists(cm_path):
+    os.remove(cm_path)
 
 print("\n" + "="*60)
-print("✅ TRAINING COMPLETED SUCCESSFULLY!")
+print("✅ TRAINING & LOGGING COMPLETED!")
+print("Sekarang buka browser di http://127.0.0.1:5000/ untuk cek hasil.")
 print("="*60)

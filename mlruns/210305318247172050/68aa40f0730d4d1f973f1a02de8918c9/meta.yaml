@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Adinata/Eksperimen_SML_I_Ketut_Adinata_Vyarsa/mlruns/210305318247172050/68aa40f0730d4d1f973f1a02de8918c9/artifacts
+end_time: 1765982085869
+entry_point_name: ''
+experiment_id: '210305318247172050'
+lifecycle_stage: active
+run_id: 68aa40f0730d4d1f973f1a02de8918c9
+run_name: RandomForest_Tuned
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765982080107
+status: 3
+tags: []
+user_id: Adinata

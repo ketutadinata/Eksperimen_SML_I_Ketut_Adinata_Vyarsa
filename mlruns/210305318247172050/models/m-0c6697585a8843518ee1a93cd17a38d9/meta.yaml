@@ -1,0 +1,10 @@
+artifact_location: file:C:/Users/Adinata/Eksperimen_SML_I_Ketut_Adinata_Vyarsa/mlruns/210305318247172050/models/m-0c6697585a8843518ee1a93cd17a38d9/artifacts
+creation_timestamp: 1765982828428
+experiment_id: '210305318247172050'
+last_updated_timestamp: 1765982832638
+model_id: m-0c6697585a8843518ee1a93cd17a38d9
+model_type: ''
+name: model
+source_run_id: 9f9c2b5e4dbf410bb1a62dd1d66ca224
+status: 2
+status_message: null

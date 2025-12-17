@@ -1,0 +1,22 @@
+artifact_path: file:C:/Users/Adinata/Eksperimen_SML_I_Ketut_Adinata_Vyarsa/mlruns/210305318247172050/models/m-0c6697585a8843518ee1a93cd17a38d9/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.9
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+mlflow_version: 3.7.0
+model_id: m-0c6697585a8843518ee1a93cd17a38d9
+model_size_bytes: 1956312
+model_uuid: m-0c6697585a8843518ee1a93cd17a38d9
+prompts: null
+run_id: 9f9c2b5e4dbf410bb1a62dd1d66ca224
+utc_time_created: '2025-12-17 14:47:08.508461'
