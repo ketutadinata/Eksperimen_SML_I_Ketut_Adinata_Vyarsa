@@ -1,12 +1,6 @@
-# MLProject (REVISI FINAL: Menggunakan Kedua Dependency File)
+name: personality-classification-project
 
-name: mlproject-experiment
-
-# Conda environment definition (untuk dependensi Conda/Sistem)
 conda_env: conda.yaml
-
-# Pip requirements definition (untuk dependensi Python pip)
-requirements_file: requirements.txt
 
 entry_points:
   main:
