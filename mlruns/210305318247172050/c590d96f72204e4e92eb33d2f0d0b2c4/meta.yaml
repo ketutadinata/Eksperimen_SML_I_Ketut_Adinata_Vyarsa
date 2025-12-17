@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/Adinata/Eksperimen_SML_I_Ketut_Adinata_Vyarsa/mlruns/210305318247172050/c590d96f72204e4e92eb33d2f0d0b2c4/artifacts
+end_time: 1765983171257
+entry_point_name: ''
+experiment_id: '210305318247172050'
+lifecycle_stage: active
+run_id: c590d96f72204e4e92eb33d2f0d0b2c4
+run_name: RandomForest_Final_Run
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1765983171008
+status: 3
+tags: []
+user_id: Adinata

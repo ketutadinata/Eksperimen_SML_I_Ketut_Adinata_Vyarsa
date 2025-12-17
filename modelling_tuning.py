@@ -152,43 +152,49 @@ plt.close()
 print(f"✓ Confusion Matrix created: {cm_path}")
 
 # ============================================================
-# MLFLOW LOGGING
-# ============================================================
-# ============================================================
-# MLFLOW LOGGING (STRUKTUR RAPI)
+# MLFLOW LOGGING (STRUKTUR IDENTIK DENGAN FOTO)
 # ============================================================
 print("\n[8/8] Logging to MLflow...")
 
-with mlflow.start_run(run_name="RandomForest_Skilled_Run") as run:
-    
-    # 1. Log Parameters & Metrics (Tetap sama)
+# 1. Buat folder sementara untuk menyatukan semua file
+import shutil
+temp_upload_dir = "temp_mlflow_artifacts"
+if os.path.exists(temp_upload_dir):
+    shutil.rmtree(temp_upload_dir)
+os.makedirs(temp_upload_dir)
+
+# 2. Simpan model secara manual ke folder tersebut
+mlflow.sklearn.save_model(
+    sk_model=best_model,
+    path=os.path.join(temp_upload_dir, "model")
+)
+
+# 3. Pindahkan file tambahan ke folder sementara
+shutil.copy(scaler_path, os.path.join(temp_upload_dir, "scaler.pkl"))
+shutil.copy(cm_path, os.path.join(temp_upload_dir, "training_confusion_matrix.png"))
+
+# 4. Upload seluruh isi folder tersebut ke MLflow
+with mlflow.start_run(run_name="RandomForest_Final_Run") as run:
+    # Log Metrics & Params (agar muncul di tabel utama UI)
     mlflow.log_params(grid_search.best_params_)
     mlflow.log_metric("accuracy", accuracy)
     mlflow.log_metric("f1_score_weighted", f1)
     
-    # 2. Log Model (Ini akan membuat folder 'model' di root artifacts)
-    # Di dalamnya otomatis ada MLmodel, conda.yaml, model.pkl, dll
-    mlflow.sklearn.log_model(
-        sk_model=best_model,
-        artifact_path="model", 
-        registered_model_name="RandomForest_Personality_Classifier"
-    )
+    # Upload seluruh isi folder temp ke root artifacts
+    mlflow.log_artifacts(temp_upload_dir)
     
-    # 3. Log file lainnya KE DALAM folder 'model' agar terlihat menyatu
-    # Kita arahkan artifact_path ke "model" juga
-    mlflow.log_artifact(scaler_path, artifact_path="model")
-    mlflow.log_artifact(cm_path, artifact_path="model") 
-    
-    print(f"✓ Semua artefak telah dikirim ke folder 'model' di MLflow")
-    
-    # Save model locally (opsional, backup)
-    model_path = os.path.join(ARTIFACT_DIR, "best_model.pkl")
-    joblib.dump(best_model, model_path)
-    
+    print(f"✓ Berhasil! Sekarang semua file berada dalam satu level di folder Artifacts.")
     print(f"✓ Model logged to MLflow Run ID: {run.info.run_id}")
     print(f"✓ Artifacts sent to server: http://127.0.0.1:5000/")
 
-# Bersihkan file temporary gambar jika perlu
+# 5. Pembersihan (Cleanup) dilakukan DI LUAR blok 'with'
+if os.path.exists(temp_upload_dir):
+    shutil.rmtree(temp_upload_dir)
+
+# Save model locally (backup lokal di folder artifacts)
+model_path = os.path.join(ARTIFACT_DIR, "best_model.pkl")
+joblib.dump(best_model, model_path)
+
 if os.path.exists(cm_path):
     os.remove(cm_path)
 
